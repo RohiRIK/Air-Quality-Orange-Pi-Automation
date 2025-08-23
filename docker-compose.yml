@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  bmp-sensor:
+    build: .
+    image: rohirikman/air-quality-sensor # Using a tagged image is best practice for Watchtower
+    container_name: bmp-sensor-container
+    restart: unless-stopped
+    privileged: true
+    devices:
+      - "/dev/i2c-0:/dev/i2c-0"
+    network_mode: "host"
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    # This schedule will check for new images every day at 4 AM.
+    # For testing, you can use a short interval like --interval 300 (5 minutes)
+    command: --schedule "0 0 4 * * *" --cleanup

@@ -1,0 +1,22 @@
+# Project To-Do List
+
+- [x] **1. Create Project Files**
+- [x] **2. Upgrade to BME688 Sensor**
+- [x] **3. Add Update Automation**
+- [ ] **4. Push to GitHub:**
+    - [ ] Initialize a new GitHub repository.
+    - [ ] Add all current project files.
+    - [ ] Create and push the initial commit.
+- [ ] **5. Test and Deploy:**
+    - [ ] **Phase 1: Local Testing (Optional)**
+        - [ ] Install dependencies and run the Python script directly on the Orange Pi.
+        - [ ] Verify sensor readings.
+    - [ ] **Phase 2: Docker Testing**
+        - [ ] Build and run services with `docker-compose up --build -d`.
+        - [ ] Verify the container is running and sending data.
+    - [ ] **Phase 3: Deploy to Docker Hub**
+        - [ ] Log in to Docker Hub (`docker login`).
+        - [ ] Push the image with `docker-compose push`.
+- [ ] **6. Refine and Enhance:**
+    - [ ] Refactor the Python script for robustness.
+    - [ ] Implement an air quality baseline feature.

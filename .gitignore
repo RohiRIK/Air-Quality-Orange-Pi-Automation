@@ -1,0 +1,26 @@
+# Byte-compiled / optimized / dll files
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+
+# OS-specific files
+.DS_Store
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Virtual environment
+venv/
+.venv/
+
+# Logs
+*.log
+log/
+
+# Environment variables
+.env
+.flaskenv
+
+# Project-specific large files
+assets/*.img

@@ -1,7 +1,7 @@
-# BMP688 Sensor Project on Orange Pi 3 LTS
+# BME688 Environmental Sensor Project on Orange Pi 3 LTS
 
 ## Project Overview
-This project demonstrates how to connect a BMP688 barometric pressure sensor to an Orange Pi 3 LTS single-board computer, read environmental data (temperature, pressure, and altitude), format it as JSON, and send it to a remote endpoint. The setup is containerized using Docker for portability and ease of deployment. The project is designed for beginners in electronics and IoT, providing a step-by-step guide to hardware connection, software configuration, and data transmission.
+This project demonstrates how to connect a BME688 4-in-1 environmental sensor to an Orange Pi 3 LTS single-board computer. It reads comprehensive environmental data—temperature, pressure, humidity, and gas resistance (for air quality)—formats it as JSON, and sends it to a remote endpoint. The setup is fully containerized using Docker Compose and includes an automated update workflow with Watchtower, making it a robust and maintainable IoT solution.
 
 ## Getting Started
 
@@ -18,20 +18,16 @@ For complete details, please refer to the `docs` directory.
 
 ```
 /Air-Quality-Orange-Pi-Automation
-├── .DS_Store
+├── Dockerfile
+├── docker-compose.yml
+├── bmp_reader.py
+├── requirements.txt
+├── scripts/
+│   └── update_os.sh
+├── docs/
+│   ├── 1_OVERVIEW.md
+│   ├── 2_GOALS.md
+│   ├── ...
 ├── README.md
-├── .git/
-├── assets/
-│   ├── Armbian_community_25.8.0-trunk.481_Orangepi3-lts_bookworm_current_6.12.35_minimal.img
-│   ├── IMG_4730.HEIC
-│   ├── IMG_4731.HEIC
-│   ├── IMG_4733.HEIC
-│   └── IMG_4734.HEIC
-└── docs/
-    ├── 1_OVERVIEW.md
-    ├── 2_GOALS.md
-    ├── 3_HARDWARE_SETUP.md
-    ├── 4_SOFTWARE_USAGE.md
-    ├── 5_TROUBLESHOOTING.md
-    └── 6_FUTURE_ENHANCEMENTS.md
+└── TODO.md
 ```
