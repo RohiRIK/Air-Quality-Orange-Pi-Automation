@@ -1,13 +1,17 @@
 # Project To-Do List
 
-- [x] **1. Create Project Files**
-- [x] **2. Upgrade to BME688 Sensor**
-- [x] **3. Add Update Automation**
-- [ ] **4. Push to GitHub:**
+- [ ] **1. Install Armbian and Connect Sensor:**
+    - [ ] Install Armbian OS on Orange Pi.
+    - [ ] Connect BME688 sensor to Orange Pi.
+    - [ ] Verify sensor connection (`sudo i2cdetect -y 0`).
+- [x] **2. Create Project Files**
+- [x] **3. Upgrade to BME688 Sensor**
+- [x] **4. Add Update Automation**
+- [ ] **5. Push to GitHub:**
     - [ ] Initialize a new GitHub repository.
     - [ ] Add all current project files.
     - [ ] Create and push the initial commit.
-- [ ] **5. Test and Deploy:**
+- [ ] **6. Test and Deploy:**
     - [ ] **Phase 1: Local Testing (Optional)**
         - [ ] Install dependencies and run the Python script directly on the Orange Pi.
         - [ ] Verify sensor readings.
@@ -17,6 +21,14 @@
     - [ ] **Phase 3: Deploy to Docker Hub**
         - [ ] Log in to Docker Hub (`docker login`).
         - [ ] Push the image with `docker-compose push`.
-- [ ] **6. Refine and Enhance:**
+- [ ] **7. Create Comprehensive Setup Script:**
+    - [ ] Update OS packages.
+    - [ ] Install `git`, `python3-pip`, `i2c-tools`.
+    - [ ] Install `docker.io` and `docker-compose-v2`.
+    - [ ] Clone the project repository.
+    - [ ] Enable I2C (with user prompt for reboot).n    - [ ] Install Python dependencies.
+    - [ ] Build and run Docker Compose services.
+    - [ ] (Optional) Set up cron jobs for `update_os.sh` and Watchtower.
+- [ ] **8. Refine and Enhance:**
     - [ ] Refactor the Python script for robustness.
     - [ ] Implement an air quality baseline feature.
