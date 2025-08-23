@@ -1,0 +1,14 @@
+.git
+.gitignore
+.dockerignore
+docs/
+scripts/
+assets/
+TODO.md
+gemini.md
+__pycache__/
+*.pyc
+venv/
+.venv/
+*.log
+.env
