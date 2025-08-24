@@ -100,7 +100,9 @@ The end-to-end workflow is as follows:
 ## Data Flow
 
 - The sensor reads data every 5 seconds.
-- Data is formatted as JSON:
+- Data is formatted as JSON. In addition to environmental parameters, it now includes a dynamic air quality baseline and a calculated air quality score.
+- For a detailed explanation of the air quality baseline and sensor calibration, refer to [docs/7_CALIBRATION_AND_AIR_QUALITY.md](docs/7_CALIBRATION_AND_AIR_QUALITY.md).
+
   ```json
   {
     "timestamp": "YYYY-MM-DD HH:MM:SS",
@@ -108,7 +110,9 @@ The end-to-end workflow is as follows:
     "pressure_hpa": 1013.2,
     "humidity_rh": 45.5,
     "gas_ohms": 50000,
-    "altitude_m": 10.25
+    "altitude_m": 10.25,
+    "gas_baseline_ohms": 48000,   // Dynamic baseline for gas resistance
+    "air_quality_score": 65.23    // Score from 0-100, where 50 is baseline
   }
   ```
 - Sent via HTTP POST to the configured URL in `bmp_reader.py`.

@@ -13,6 +13,7 @@ For complete details, please refer to the `docs` directory.
 - **4. Software Usage**: [docs/4_SOFTWARE_USAGE.md](docs/4_SOFTWARE_USAGE.md)
 - **5. Troubleshooting**: [docs/5_TROUBLESHOOTING.md](docs/5_TROUBLESHOOTING.md)
 - **6. Future Enhancements**: [docs/6_FUTURE_ENHANCEMENTS.md](docs/6_FUTURE_ENHANCEMENTS.md)
+- **7. Sensor Calibration and Air Quality**: [docs/7_CALIBRATION_AND_AIR_QUALITY.md](docs/7_CALIBRATION_AND_AIR_QUALITY.md)
 
 ## Repository Structure
 
