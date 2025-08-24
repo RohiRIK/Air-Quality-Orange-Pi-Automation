@@ -7,7 +7,7 @@
     - [x] Create the `Dockerfile` to containerize the application.
 
 - [ ] **2. Install Armbian and Connect Sensor:**
-    - [ ] Install Armbian OS on Orange Pi.
+    - [X] Install Armbian OS on Orange Pi.
     - [ ] Connect BME688 sensor to Orange Pi.
     - [ ] Verify sensor connection (`sudo i2cdetect -y 0`).
 
