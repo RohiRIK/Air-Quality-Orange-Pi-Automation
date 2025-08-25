@@ -4,10 +4,10 @@
 1. **Identify Pins**:
    - On the Orange Pi 3 LTS, GPIO pin numbering starts at Pin 1 (top-left, marked by a triangle), which is 3.3V.
    - Connect BMP688:
-     - VCC → Pin 1 (3.3V)
-     - GND → Pin 6 (GND)
-     - SDA → Pin 3 (SDA.1)
-     - SCL → Pin 5 (SCL.1)
+     - VCC → Pin 1 (3.3V) RED
+     - GND → Pin 6 (GND) BLACK
+     - SDA → Pin 3 (SDA.1) YELLOW
+     - SCL → Pin 5 (SCL.1) GREEN
 2. **Power On**: Use a 5V power supply for the Orange Pi.
 3. **Verify**: Run `sudo i2cdetect -y 0` to detect the sensor (address: 0x76 or 0x77).
 
