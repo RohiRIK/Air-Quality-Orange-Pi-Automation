@@ -1,2 +1,8 @@
 adafruit-circuitpython-bme680
 requests
+board
+busio
+time
+requests
+os
+json

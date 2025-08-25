@@ -8,7 +8,6 @@ services:
     privileged: true
     devices:
       - "/dev/i2c-0:/dev/i2c-0"
-    network_mode: "host"
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
 
