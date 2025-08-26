@@ -21,13 +21,19 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Remove build dependencies to reduce image size (but keep libgpiod)
 RUN apt-get remove -y gcc python3-dev && apt-get autoremove -y
 
-# Copy the content of the local src directory to the working directory
+# Copy the application files
 COPY bmp_reader.py .
+COPY app.py .
+COPY templates/ templates/
+COPY static/ static/
+
+# Expose the port the app runs on
+EXPOSE 5000
 
 # Define environment variables
 ENV I2C_DEVICE /dev/i2c-0
 ENV BLINKA_FORCEBOARD ORANGE_PI_3_LTS
 ENV PYTHONUNBUFFERED=1
 
-# Run bmp_reader.py when the container launches
-CMD ["python", "bmp_reader.py"]
+# Run app.py when the container launches
+CMD ["python", "app.py"]

@@ -1,0 +1,70 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #1c1e21;
+}
+
+.data-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.card, .explanation-card {
+    background-color: #f7f8fa;
+    border: 1px solid #dddfe2;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+}
+
+.card h2 {
+    margin-top: 0;
+    font-size: 1.2em;
+    color: #606770;
+}
+
+.card p {
+    font-size: 2em;
+    font-weight: bold;
+    margin: 0;
+}
+
+.explanation-card {
+    background-color: #e7f3ff;
+    border-color: #1877f2;
+}
+
+.explanation-card h2 {
+    color: #1877f2;
+    margin-top: 0;
+}
+
+#explanation {
+    font-size: 1.1em;
+}
+
+.chart-container {
+    width: 100%;
+}

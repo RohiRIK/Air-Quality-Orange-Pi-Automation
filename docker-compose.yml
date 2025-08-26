@@ -6,8 +6,12 @@ services:
     container_name: bmp-sensor-container
     restart: unless-stopped
     privileged: true
+    ports:
+      - "5000:5000"
     devices:
       - "/dev/i2c-0:/dev/i2c-0"
+    env_file:
+      - .env
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
 

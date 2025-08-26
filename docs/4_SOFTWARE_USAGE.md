@@ -16,9 +16,13 @@ pip3 install -r requirements.txt
 - Edit `/boot/armbianEnv.txt` to add `overlays=i2c0` and reboot.
 
 **3. Configure n8n Webhook (Optional):**
-Set the environment variable for your n8n webhook URL:
+Set the environment variable for your n8n webhook URL. The script prioritizes the `_TEST` variable.
 ```sh
-export N8N_WEBHOOK_URL="<your-n8n-webhook-url>"
+# For testing
+export N8N_WEBHOOK_URL_TEST="<your-n8n-test-webhook-url>"
+
+# For production
+export N8N_WEBHOOK_URL_PROD="<your-n8n-prod-webhook-url>"
 ```
 
 **4. Run the application:**
@@ -35,11 +39,18 @@ Then, open your browser and go to `http://<your-orange-pi-ip>:5000`.
 Follow the official Docker documentation to install Docker Engine and the Docker Compose plugin for your system.
 
 **2. Configure Environment Variables:**
-Create a `.env` file in the project root directory and add your n8n webhook URL:
+Create a `.env` file in the project root directory. Add your n8n webhook URL(s). The application will use the `_TEST` URL if it is defined, otherwise it will use the `_PROD` URL.
+
+**Example for testing:**
 ```
-N8N_WEBHOOK_URL=<your-n8n-webhook-url>
+N8N_WEBHOOK_URL_TEST=<your-n8n-test-webhook-url>
 ```
-This step is optional. If you don't provide the URL, the application will run without sending data to n8n.
+
+**Example for production:**
+```
+N8N_WEBHOOK_URL_PROD=<your-n8n-prod-webhook-url>
+```
+This step is optional. If you don't provide any URL, the application will run without sending data to n8n.
 
 **3. Build and Run the Application:**
 Navigate to the project's root directory (where `docker-compose.yml` is located) and run:
@@ -96,7 +107,7 @@ You can update the code running on your Orange Pi from anywhere by pushing a new
 
 - The `bmp_reader.py` script, now structured as a class, runs in a background thread of the `app.py` Flask application.
 - It reads sensor data every 2 seconds.
-- **(Optional) n8n Integration**: If the `N8N_WEBHOOK_URL` is configured, the application sends the sensor data to this URL.
+- **(Optional) n8n Integration**: If an `N8N_WEBHOOK_URL_TEST` or `N8N_WEBHOOK_URL_PROD` is configured, the application sends the sensor data to the appropriate URL.
 - n8n processes the data and returns a JSON response containing an "explanation".
 - The `app.py` application serves the frontend at the root URL (`/`) and provides the latest sensor data and the n8n explanation at the `/api/data` endpoint.
 - The frontend (`index.html` and `script.js`) fetches data from `/api/data` and updates the display and chart in real-time.

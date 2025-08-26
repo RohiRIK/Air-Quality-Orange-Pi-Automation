@@ -34,7 +34,7 @@ The frontend components are organized into `templates` and `static` directories:
 
 1.  **Backend (`app.py`)**:
     -   Initializes the BME688 sensor in a background thread to read data continuously.
-    -   If an `N8N_WEBHOOK_URL` is provided, it sends the sensor data to this webhook.
+    -   It checks for the `N8N_WEBHOOK_URL_TEST` and `N8N_WEBHOOK_URL_PROD` environment variables. If one is found (with `_TEST` taking priority), it sends the sensor data to the corresponding webhook.
     -   It receives a JSON response from n8n containing an "explanation".
     -   Starts a Flask web server.
     -   Provides two main routes:
