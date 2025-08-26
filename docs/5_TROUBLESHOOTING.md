@@ -21,3 +21,17 @@
 - **Container Fails to Start**: Check for missing Docker privileges or device flags. Review error messages for clues.
 
 - **Permission Issues**: Run Docker commands with `sudo` if needed.
+
+---
+
+### Frontend Issues
+
+- **Cannot Access Web Interface**:
+  - Ensure the container is running with `sudo docker-compose ps`.
+  - Verify you are using the correct IP address for your Orange Pi and port `5000`.
+  - Check the container logs (`sudo docker-compose logs -f`) for any errors from the Flask application.
+
+- **Web Page Loads but No Data Appears**:
+  - Open the browser's developer console (usually F12) and check for JavaScript errors.
+  - Verify that the frontend can reach the backend API. From your computer, try to access `http://<your-orange-pi-ip>:5000/api/data`. You should see a JSON response.
+  - Check the container logs for sensor-related errors. If the sensor isn't being read, the API won't have data to return.

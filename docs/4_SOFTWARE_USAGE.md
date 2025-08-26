@@ -4,175 +4,128 @@
 
 ## Local Setup (Without Docker)
 
-**Install dependencies:**
+**1. Install dependencies:**
 ```sh
 sudo apt update
 sudo apt install python3-pip i2c-tools
-pip3 install adafruit-circuitpython-bme680 requests
+pip3 install -r requirements.txt
 ```
+*Note: `requirements.txt` includes `adafruit-circuitpython-bme680`, `adafruit-blinka`, `Flask`, and `requests`.*
 
-**Enable I2C:**
+**2. Enable I2C:**
 - Edit `/boot/armbianEnv.txt` to add `overlays=i2c0` and reboot.
 
-**Run the script:**
+**3. Configure n8n Webhook (Optional):**
+Set the environment variable for your n8n webhook URL:
 ```sh
-python3 bmp_reader.py
+export N8N_WEBHOOK_URL="<your-n8n-webhook-url>"
 ```
+
+**4. Run the application:**
+```sh
+python3 app.py
+```
+Then, open your browser and go to `http://<your-orange-pi-ip>:5000`.
 
 ---
 
 ## Docker Compose Setup
 
 **1. Install Docker and Docker Compose:**
-Follow the official Docker documentation to install Docker Engine and the Docker Compose plugin for your system. A typical command for Debian-based systems like Armbian is:
-```sh
-# Install Docker
-sudo apt update
-sudo apt install docker.io
-sudo systemctl start docker
-sudo systemctl enable docker
+Follow the official Docker documentation to install Docker Engine and the Docker Compose plugin for your system.
 
-# Install Docker Compose
-sudo apt install docker-compose-v2
+**2. Configure Environment Variables:**
+Create a `.env` file in the project root directory and add your n8n webhook URL:
 ```
+N8N_WEBHOOK_URL=<your-n8n-webhook-url>
+```
+This step is optional. If you don't provide the URL, the application will run without sending data to n8n.
 
-**2. Build and Run the Application:**
+**3. Build and Run the Application:**
 Navigate to the project's root directory (where `docker-compose.yml` is located) and run:
 ```sh
-docker-compose up --build -d
+sudo docker-compose up --build -d
 ```
-- `--build`: This flag tells Docker Compose to build the `bmp-sensor` image before starting the services.
-- `-d`: This runs the containers in detached mode (in the background).
+- `--build`: This flag tells Docker Compose to build the image before starting the service.
+- `-d`: This runs the container in detached mode.
 
-**3. Automatic Updates with Watchtower:**
-The `docker-compose.yml` file includes the Watchtower service. It will automatically check for updates to the `rohirikman/air-quality-sensor` image every day at 4 AM (as per the schedule `"0 0 4 * * *"`). If it finds a new version, it will gracefully restart the `bmp-sensor` container with the updated image. No manual intervention is needed.
+**4. Accessing the Frontend:**
+Open a web browser and navigate to the IP address of your Orange Pi, followed by port `5000`.
+```
+http://<your-orange-pi-ip>:5000
+```
+For example: `http://192.168.1.100:5000`
 
-**4. Viewing Logs:**
-To view the logs from the running sensor container, use:
+**5. Viewing Logs:**
+To view the logs from the running container (which now come from the Flask application), use:
 ```sh
-docker-compose logs -f bmp-sensor
+sudo docker-compose logs -f
 ```
 
-**5. Stopping the Application:**
-To stop the services, run:
+**6. Stopping the Application:**
+To stop the service, run:
 ```sh
-docker-compose down
+sudo docker-compose down
 ```
 
 ---
 
 ### Development and Update Workflow
 
-The primary advantage of this setup is that you can update the code running on your Orange Pi from anywhere, without needing to access the device directly. The process relies on Docker Hub (or another container registry) as the bridge.
-
-The end-to-end workflow is as follows:
+You can update the code running on your Orange Pi from anywhere by pushing a new Docker image.
 
 **1. Prerequisites:**
-   - Create a free account on [Docker Hub](https://hub.docker.com/).
-   - On Docker Hub, create a public repository named `air-quality-sensor` (or a name of your choice, but be sure to update the `image` name in `docker-compose.yml` to match).
+   - A [Docker Hub](https://hub.docker.com/) account and a public repository.
 
 **2. Make Code Changes:**
-   - Modify the `bmp_reader.py` script or any other project file on your local development machine.
+   - Modify `app.py`, `bmp_reader.py`, or files in the `templates` or `static` directories.
 
-**3. Build, Push, and Deploy:**
-   - Open a terminal in the project root directory.
-   - **Log in to Docker Hub:**
-     ```sh
-     docker login
-     ```
-     (Enter your Docker Hub username and password when prompted).
-   - **Build the new image:** This command reads the `image` tag from your `docker-compose.yml` file.
-     ```sh
-     docker-compose build
-     ```
-   - **Push the new image to Docker Hub:**
-     ```sh
-     docker-compose push
-     ```
+**3. Build and Push the new image:**
+   ```sh
+   docker login
+   sudo docker-compose build
+   sudo docker-compose push
+   ```
 
 **4. Automatic Update on Orange Pi:**
-   - That's it! You are done.
-   - The Watchtower container running on your Orange Pi will detect that a new version of the `rohirikman/air-quality-sensor` image has been pushed to Docker Hub during its next scheduled check.
-   - It will automatically pull the new image and restart the `bmp-sensor` service with your updated code.
+   - The Watchtower service (if enabled in `docker-compose.yml`) will automatically pull the new image and restart the service.
 
 ---
 
 ## Data Flow
 
-- The sensor reads data every 5 seconds.
-- Data is formatted as JSON. In addition to environmental parameters, it now includes a dynamic air quality baseline and a calculated air quality score.
+- The `bmp_reader.py` script, now structured as a class, runs in a background thread of the `app.py` Flask application.
+- It reads sensor data every 2 seconds.
+- **(Optional) n8n Integration**: If the `N8N_WEBHOOK_URL` is configured, the application sends the sensor data to this URL.
+- n8n processes the data and returns a JSON response containing an "explanation".
+- The `app.py` application serves the frontend at the root URL (`/`) and provides the latest sensor data and the n8n explanation at the `/api/data` endpoint.
+- The frontend (`index.html` and `script.js`) fetches data from `/api/data` and updates the display and chart in real-time.
 - For a detailed explanation of the air quality baseline and sensor calibration, refer to [docs/7_CALIBRATION_AND_AIR_QUALITY.md](docs/7_CALIBRATION_AND_AIR_QUALITY.md).
 
+  **Sample API Response from `/api/data`:**
   ```json
   {
-    "timestamp": "YYYY-MM-DD HH:MM:SS",
+    "timestamp": "2025-08-26T10:20:30.123456+00:00",
     "temperature_c": 25.5,
     "pressure_hpa": 1013.2,
     "humidity_rh": 45.5,
     "gas_ohms": 50000,
     "altitude_m": 10.25,
-    "gas_baseline_ohms": 48000,   // Dynamic baseline for gas resistance
-    "air_quality_score": 65.23    // Score from 0-100, where 50 is baseline
+    "gas_baseline_ohms": 48000,
+    "air_quality_score": 65.23,
+    "explanation": "Air quality is good. No action needed."
   }
   ```
-- Sent via HTTP POST to the configured URL in `bmp_reader.py`.
 
 ---
 
-## Sample `bmp_reader.py` Script
+## Application Structure Overview
 
-```python
-import board
-import busio
-import adafruit_bme680
-import time
-import requests
-import os
-import json
+The application is now composed of a backend and a frontend:
 
-# Initialize I2C bus
-i2c = busio.I2C(board.SCL, board.SDA)
+- **`app.py` (Backend)**: The main entry point. It starts the sensor reading thread and runs the Flask web server to handle HTTP requests and the n8n integration.
+- **`bmp_reader.py` (Sensor Logic)**: A class that encapsulates all the logic for interacting with the BME688 sensor.
+- **`templates/index.html` (Frontend)**: The HTML structure of the web dashboard.
+- **`static/script.js` and `static/style.css` (Frontend)**: The JavaScript and CSS for the web dashboard.
 
-# Create sensor object using the BME680 library
-bme680 = adafruit_bme680.Adafruit_BME680_I2C(i2c)
-
-# Set sea level pressure for more accurate altitude readings
-bme680.sea_level_pressure = 1013.25
-
-# Define the endpoint URL to send data to
-URL = "https://httpbin.org/post"  # Example; change to your server URL
-
-while True:
-    # Read sensor data
-    temperature = bme680.temperature
-    gas = bme680.gas
-    humidity = bme680.humidity
-    pressure = bme680.pressure
-    altitude = bme680.altitude
-
-    # Create JSON data payload
-    sensor_data = {
-        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime()),
-        "temperature_c": round(temperature, 2),
-        "pressure_hpa": round(pressure, 2),
-        "humidity_rh": round(humidity, 2),
-        "gas_ohms": round(gas, 2),
-        "altitude_m": round(altitude, 2)
-    }
-
-    # Convert to JSON string
-    json_data = json.dumps(sensor_data)
-
-    try:
-        # Send JSON data to the endpoint
-        response = requests.post(URL, data=json_data, headers={"Content-Type": "application/json"})
-        if response.status_code == 200:
-            print("Data sent successfully:", sensor_data)
-        else:
-            print(f"Failed to send data. Status code: {response.status_code}")
-    except Exception as e:
-        print(f"Error sending data: {e}")
-
-    # Wait 5 seconds before the next reading
-    time.sleep(5)
-```
+For more details on the frontend, see [docs/9_FRONTEND_SETUP.md](docs/9_FRONTEND_SETUP.md).

@@ -1,7 +1,7 @@
 # Future Enhancements
 
 - Add data logging to a file or database.
-- Integrate with a web dashboard (e.g., using Flask or Grafana).
+- Enhance the web dashboard with historical data, configuration options, and more advanced visualizations.
 - Support multiple sensors or devices.
 - Secure data transmission with HTTPS and authentication.
 - Add alerting/notification system for threshold breaches (e.g., email, SMS, push notifications).
@@ -10,7 +10,7 @@
 - Provide REST API for external integrations.
 - Enable cloud storage and analytics integration (AWS, Azure, Google Cloud).
 - Add user management and role-based access control.
-- Visualize historical data and trends.
+- Implement a database (e.g., SQLite or InfluxDB) for long-term data storage and historical trend analysis.
 - Support for OTA (Over-the-Air) updates.
 - Add mobile app integration for real-time monitoring.
 - Integrate n8n automation workflows to process, route, and visualize sensor data (e.g., auto-log to Google Sheets, send alerts, forward to APIs).
