@@ -6,6 +6,7 @@ import socket
 import random
 from collections import deque
 from datetime import datetime, timezone
+import requests # Added for webhook functionality
 
 # Check if running in development mode
 IS_DEV_MODE = os.environ.get('DEV_MODE', 'false').lower() == 'true'
@@ -16,6 +17,7 @@ if IS_DEV_MODE:
         def __init__(self, device_id=None, read_interval=2.0):
             self.device_id = device_id or "dev-device"
             self.read_interval = read_interval
+            self.n8n_webhook_url = os.getenv("N8N_WEBHOOK_URL") # New: Webhook URL for dev mode
             self.latest_data = {}
             self.stop_event = False
             self.reading_count = 0
@@ -45,6 +47,17 @@ if IS_DEV_MODE:
                 **extra_data
             }
             print(json.dumps(log_entry, separators=(",", ":")), file=sys.stderr, flush=True)
+
+        def send_to_webhook(self, data):
+            if self.n8n_webhook_url:
+                try:
+                    response = requests.post(self.n8n_webhook_url, json=data, timeout=5)
+                    response.raise_for_status() # Raise an exception for HTTP errors
+                    self.log_info("Data sent to webhook successfully", status_code=response.status_code)
+                except requests.exceptions.RequestException as e:
+                    self.log_error("Failed to send data to webhook", error=e)
+            else:
+                self.log_info("N8N_WEBHOOK_URL not set, skipping webhook send.")
 
         def get_sensor_reading(self):
             # Simulate realistic sensor data
@@ -77,6 +90,7 @@ if IS_DEV_MODE:
                         "baseline_established": True
                     }
                     self.latest_data = sensor_data
+                    self.send_to_webhook(sensor_data) # New: Send data to webhook
                 except Exception as e:
                     self.log_error("Error in mock sensor loop", error=e)
                 
@@ -96,6 +110,7 @@ else:
         def __init__(self, device_id=None, read_interval=2.0):
             self.device_id = device_id or socket.gethostname()
             self.read_interval = read_interval
+            self.n8n_webhook_url = os.getenv("N8N_WEBHOOK_URL") # New: Webhook URL for production mode
             
             # Initialize I2C bus
             self.i2c = busio.I2C(board.SCL, board.SDA)
@@ -135,6 +150,17 @@ else:
                 **extra_data
             }
             print(json.dumps(log_entry, separators=(",", ":")), file=sys.stderr, flush=True)
+
+        def send_to_webhook(self, data):
+            if self.n8n_webhook_url:
+                try:
+                    response = requests.post(self.n8n_webhook_url, json=data, timeout=5)
+                    response.raise_for_status() # Raise an exception for HTTP errors
+                    self.log_info("Data sent to webhook successfully", status_code=response.status_code)
+                except requests.exceptions.RequestException as e:
+                    self.log_error("Failed to send data to webhook", error=e)
+            else:
+                self.log_info("N8N_WEBHOOK_URL not set, skipping webhook send.")
 
         def calculate_air_quality_score(self, current_gas, baseline_gas):
             if baseline_gas == 0:
@@ -201,6 +227,7 @@ else:
                     })
                     
                     self.latest_data = sensor_data
+                    self.send_to_webhook(sensor_data) # New: Send data to webhook
 
                 except Exception as e:
                     self.log_error("Failed to read sensor data", error=e, reading_count=self.reading_count)

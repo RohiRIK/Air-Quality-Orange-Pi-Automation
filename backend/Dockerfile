@@ -8,6 +8,8 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
+COPY backend/board.py /usr/local/lib/python3.9/site-packages/board.py
+
 RUN apt-get remove -y gcc python3-dev && apt-get autoremove -y
 
 COPY bmp_reader.py .
