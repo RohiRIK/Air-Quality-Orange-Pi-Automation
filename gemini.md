@@ -24,6 +24,10 @@
 4.  **Execute:** Implement changes by modifying the relevant files (`bmp_reader.py`, `Dockerfile`, etc.). I will mimic the existing style and conventions.
 5.  **Validate & Report:** Provide a concise summary of the result and propose the next step.
 
+### Remote Interaction Protocol
+
+When interacting with a remote machine (e.g., via SSH), I will provide the necessary commands, and you, the user, will execute them on your end. I do not have direct access to your system or the ability to execute commands remotely. This ensures user control and security.
+
 ## 4. Knowledge Graph: Project Brain
 
 This section contains the specific knowledge I have about this project.
