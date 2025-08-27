@@ -32,21 +32,38 @@ This section contains the specific knowledge I have about this project.
 
 - **Hardware:**
     - **Primary:** Orange Pi 3 LTS
-    - **Sensor:** BMP688
+    - **Sensor:** BME688 (I2C address: 0x76 or 0x77)
+
 - **Software:**
-    - **Script:** `bmp_reader.py` (Python 3)
-    - **Containerization:** `Dockerfile`
-    - **Dependencies:** `requirements.txt` (`adafruit-circuitpython-bmp3xx`, `requests`, `busio`, `board`)
+    - **Backend:**
+        - **Framework:** Flask
+        - **Entrypoint:** `app.py`
+        - **Sensor Logic:** `bmp_reader.py`
+        - **Dependencies:** `adafruit-circuitpython-bme680`, `adafruit-blinka`, `gpiod`, `Flask`, `requests`
+    - **Frontend:**
+        - **Web Server:** Nginx
+        - **Frameworks:** HTML, CSS, JavaScript, Chart.js
+        - **Entrypoint:** `index.html`
+    - **Containerization:**
+        - **Orchestration:** Docker Compose (`docker-compose.yml`)
+        - **Services:** `backend`, `frontend`, `watchtower`
+    - **Automation:**
+        - **n8n:** For workflow automation and generating explanations.
+
 - **Data:**
-    - **Format:** JSON (`timestamp`, `temperature_c`, `pressure_hpa`, `altitude_m`)
-    - **Transport:** HTTP POST
+    - **Format:** JSON
+    - **Transport:** HTTP POST (to n8n), WebSockets (from backend to frontend)
+    - **Metrics:** `timestamp`, `temperature_c`, `pressure_hpa`, `humidity_rh`, `gas_ohms`, `altitude_m`, `air_quality_score`, `explanation`
 
 ### Commands & Workflows
 
-- **I2C Detection:** `sudo i2cdetect -y 0` (to verify sensor connection at address 0x76 or 0x77)
-- **Local Python Execution:** `python3 bmp_reader.py`
-- **Docker Build:** `docker build -t bmp-sensor .`
-- **Docker Run:** `docker run --rm -it --privileged --device /dev/i2c-0:/dev/i2c-0 --network host bmp-sensor`
+- **I2C Detection:** `sudo i2cdetect -y 0`
+- **Local Python Execution:** `python3 app.py`
+- **Docker Compose Build:** `docker-compose build`
+- **Docker Compose Up:** `docker-compose up -d`
+- **Docker Compose Down:** `docker-compose down`
+- **Docker Compose Logs:** `docker-compose logs -f`
+- **Docker Compose Push:** `docker-compose push`
 
 ### Project Goals (from `docs/2_GOALS.md`)
 
@@ -56,8 +73,11 @@ This section contains the specific knowledge I have about this project.
     - Support for multiple sensors.
     - Integration with Home Assistant for automation.
     - Reliable JSON data transmission.
+    - Real-time monitoring with a web-based dashboard.
+    - Intelligent air quality assessment with a dynamic baseline.
+    - Actionable insights via n8n.
 
 ## 5. Security Protocol
 
-- **Endpoint URL:** The `URL` variable in `bmp_reader.py` should be treated as sensitive. I will avoid displaying it in logs and will recommend using environment variables for production deployments.
-- **Git Hygiene:** I will not commit any sensitive data to the repository.
+- **Endpoint URL:** The `N8N_WEBHOOK_URL_TEST` and `N8N_WEBHOOK_URL_PROD` variables in the `.env` file should be treated as sensitive. I will avoid displaying them in logs.
+- **Git Hygiene:** I will not commit any sensitive data to the repository. The `.env` file is included in the `.gitignore` file.
