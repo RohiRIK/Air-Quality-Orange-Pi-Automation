@@ -1,17 +1,29 @@
 version: '3.8'
 services:
-  bmp-sensor:
-    build: .
-    image: rohirikman/air-quality-sensor # Using a tagged image is best practice for Watchtower
-    container_name: bmp-sensor-container
+  backend:
+    build: ./backend
+    image: rohirikman/air-quality-backend # Update image name
+    container_name: air-quality-backend
     restart: unless-stopped
     privileged: true
-    ports:
-      - "5000:5000"
+    # We are not mapping port 5000 to the host, as the frontend will proxy to it
+    # If direct access to backend for debugging is needed, add - "5001:5000"
     devices:
       - "/dev/i2c-0:/dev/i2c-0"
     env_file:
       - .env
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  frontend:
+    build: ./frontend
+    image: rohirikman/air-quality-frontend # Update image name
+    container_name: air-quality-frontend
+    restart: unless-stopped
+    ports:
+      - "5000:80" # Map host port 5000 to Nginx's default port 80
+    depends_on:
+      - backend # Ensure backend starts before frontend
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
 
@@ -21,6 +33,4 @@ services:
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    # This schedule will check for new images every day at 4 AM.
-    # For testing, you can use a short interval like --interval 300 (5 minutes)
     command: --schedule "0 0 4 * * *" --cleanup

@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify
 import threading
 import os
 import requests
@@ -50,9 +50,7 @@ def sensor_and_n8n_thread():
         
         time.sleep(5) # Send data to n8n every 5 seconds
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+
 
 @app.route('/api/data')
 def api_data():
