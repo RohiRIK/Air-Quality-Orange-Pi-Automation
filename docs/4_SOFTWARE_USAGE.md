@@ -25,7 +25,13 @@ export N8N_WEBHOOK_URL_TEST="<your-n8n-test-webhook-url>"
 export N8N_WEBHOOK_URL_PROD="<your-n8n-prod-webhook-url>"
 ```
 
-**4. Run the application:**
+**4. Configure Development Mode (Optional):**
+If you are running on a machine without the sensor hardware, you can enable a development mode that simulates sensor data.
+```sh
+export DEV_MODE=true
+```
+
+**5. Run the application:**
 ```sh
 python3 app.py
 ```
@@ -51,6 +57,21 @@ N8N_WEBHOOK_URL_TEST=<your-n8n-test-webhook-url>
 N8N_WEBHOOK_URL_PROD=<your-n8n-prod-webhook-url>
 ```
 This step is optional. If you don't provide any URL, the application will run without sending data to n8n.
+
+**Development Mode:**
+For development on a machine without a connected BME680 sensor, you can enable a simulation mode by setting the `DEV_MODE` variable to `true`.
+
+You can add this to your `docker-compose.yml` for the `backend` service:
+```yaml
+services:
+  backend:
+    environment:
+      - DEV_MODE=true
+```
+Or add it to your `.env` file:
+```
+DEV_MODE=true
+```
 
 **3. Build and Run the Application:**
 Navigate to the project's root directory (where `docker-compose.yml` is located) and run:

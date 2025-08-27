@@ -212,17 +212,24 @@ sudo usermod -a -G i2c $USER
 ## Development
 
 ### Local Testing
+
+To run the script locally for development, you can simulate the sensor hardware to avoid errors on machines without a connected BME680 sensor.
+
 ```bash
 # Install dependencies
 pip install -r requirements.txt
 
-# Set environment variables
-export BLINKA_FORCEBOARD=ORANGE_PI_3_LTS
+# Enable development mode (simulated data)
+export DEV_MODE=true
+
+# Set other environment variables if needed
 export READ_INTERVAL=1.0
 
 # Run locally
 python bmp_reader.py
 ```
+
+When `DEV_MODE` is set to `true`, the application will generate random sensor readings. To run with the actual hardware, ensure `DEV_MODE` is unset or set to `false`.
 
 ### Building Custom Images
 ```bash
