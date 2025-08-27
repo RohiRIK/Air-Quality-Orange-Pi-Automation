@@ -10,9 +10,7 @@ services:
     # If direct access to backend for debugging is needed, add - "5001:5000"
     devices:
       - "/dev/i2c-0:/dev/i2c-0"
-    environment:
-      - BLINKA_FORCE_BOARD=ORANGE_PI_3_LTS
-      - BLINKA_FORCE_CHIP=ALLWINNER_H6
+    
     env_file:
       - .env
     labels:
