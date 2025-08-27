@@ -1,4 +1,3 @@
-
 # Project To-Do List
 
 - [x] **1. Create Project Files**
@@ -33,9 +32,10 @@
     - [ ] Phase 2: Docker Testing
         - [ ] Build and run services with `docker-compose up --build -d`.
         - [ ] Verify the container is running and sending data.
-    - [ ] Phase 3: Deploy to Docker Hub
-        - [ ] Log in to Docker Hub (`docker login`).
-        - [ ] Push the image with `docker-compose push`.
+        - [ ] **Debug container exit issue:**
+            - [ ] Modify `backend/Dockerfile` to use `CMD ["tail", "-f", "/dev/null"]`.
+            - [ ] Rebuild and run the container.
+            - [ ] Access container and debug Python environment.
 
 - [ ] **7. Create Comprehensive Setup Script**
     - [ ] Update OS packages.

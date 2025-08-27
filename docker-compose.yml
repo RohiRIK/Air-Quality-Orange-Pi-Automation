@@ -4,7 +4,7 @@ services:
     build: ./backend
     image: rohirikman/air-quality-backend # Update image name
     container_name: air-quality-backend
-    restart: unless-stopped
+    # restart: unless-stopped
     privileged: true
     # We are not mapping port 5000 to the host, as the frontend will proxy to it
     # If direct access to backend for debugging is needed, add - "5001:5000"
