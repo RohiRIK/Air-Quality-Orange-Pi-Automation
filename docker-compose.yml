@@ -7,13 +7,21 @@ services:
     restart: unless-stopped
     privileged: true
     ports:
-      - "5000:5000"
+      - "5002:5000"
     devices:
       - "/dev/i2c-0:/dev/i2c-0"
     env_file:
       - .env
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
+
+  dummy-sensor:
+    build: .
+    container_name: dummy-sensor-container
+    command: python dummy_sensor.py
+    ports:
+      - "5001:5000" # Map host port 5001 to container port 5000
+    restart: unless-stopped
 
   watchtower:
     image: containrrr/watchtower
@@ -24,3 +32,26 @@ services:
     # This schedule will check for new images every day at 4 AM.
     # For testing, you can use a short interval like --interval 300 (5 minutes)
     command: --schedule "0 0 4 * * *" --cleanup
+
+  backend:
+    build: ./backend
+    container_name: backend-service
+    restart: unless-stopped
+    ports:
+      - "8999:8000"
+    env_file:
+      - .env
+    environment:
+      SENSOR_API_URL: "http://dummy-sensor:5000/api/data"
+    depends_on:
+      - bmp-sensor # Keep this for the real sensor, even if using dummy
+      - dummy-sensor # Add dependency on dummy sensor
+
+  frontend:
+    build: ./frontend
+    container_name: frontend-app
+    restart: unless-stopped
+    ports:
+      - "3111:3000"
+    depends_on:
+      - backend

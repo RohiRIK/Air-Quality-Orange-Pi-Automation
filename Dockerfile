@@ -24,6 +24,7 @@ RUN apt-get remove -y gcc python3-dev && apt-get autoremove -y
 # Copy the application files
 COPY bmp_reader.py .
 COPY app.py .
+COPY dummy_sensor.py .
 COPY templates/ templates/
 COPY static/ static/
 
