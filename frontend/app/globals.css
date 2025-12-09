@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@theme {
+  --color-slate-900: #0f172a;
+  /* Add other custom colors if needed, but standard palette is usually available if not overridden */
+}
+
+/* Glassmorphism Utilities */
+@utility glass-panel {
+  @apply bg-slate-900/40 backdrop-blur-xl border border-white/10 shadow-xl rounded-3xl;
+}
+
+@utility glass-card {
+  @apply bg-slate-800/30 backdrop-blur-md border border-white/5 shadow-lg rounded-2xl transition-all duration-300 hover:bg-slate-800/40;
+}
+
+/* Custom Gradients */
+@utility gradient-text {
+  @apply bg-clip-text text-transparent bg-linear-to-r from-blue-400 to-emerald-400;
+}
+
+/* Animation Utilities */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+@utility animate-pulse-slow {
+  animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Base Overrides */
+:root {
+  --background: #0f172a;
+  --foreground: #f8fafc;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  overflow-x: hidden;
+}

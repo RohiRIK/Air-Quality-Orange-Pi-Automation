@@ -1,7 +1,9 @@
 version: '3.8'
 services:
   bmp-sensor:
-    build: .
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
     image: rohirikman/air-quality-sensor # Using a tagged image is best practice for Watchtower
     container_name: bmp-sensor-container
     restart: unless-stopped
@@ -12,6 +14,22 @@ services:
       - "/dev/i2c-0:/dev/i2c-0"
     env_file:
       - .env
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: rohirikman/air-quality-frontend
+    container_name: frontend-container
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:5000/api
+    depends_on:
+      - bmp-sensor
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
 

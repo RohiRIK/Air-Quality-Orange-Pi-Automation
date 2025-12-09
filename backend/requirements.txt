@@ -3,3 +3,5 @@ adafruit-blinka
 gpiod
 Flask
 requests
+pydantic-settings
+pytest
