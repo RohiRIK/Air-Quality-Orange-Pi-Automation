@@ -64,7 +64,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               style={{
                 backgroundColor: t.colors.bg,
                 borderColor: theme.id === t.id ? t.colors.primary : t.colors.border,
-                ringColor: t.colors.primary,
+
               }}
             >
               {/* Preview Circles */}
