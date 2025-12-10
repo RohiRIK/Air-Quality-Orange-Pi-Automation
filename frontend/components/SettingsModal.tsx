@@ -89,7 +89,15 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         </div>
 
         {/* Footer */}
-        <div className="mt-6 pt-4 border-t flex justify-end" style={{ borderColor: theme.colors.border }}>
+        <div className="mt-6 pt-4 border-t flex justify-between items-center" style={{ borderColor: theme.colors.border }}>
+          <a
+            href={`${process.env.NEXT_PUBLIC_API_URL || '/api'}/auth/google`}
+            className="text-sm hover:underline"
+            style={{ color: theme.colors.muted }}
+          >
+            Connect Google Calendar
+          </a>
+
           <button
             onClick={onClose}
             className="px-6 py-2 rounded-lg font-medium transition-colors hover:brightness-110"

@@ -7,10 +7,13 @@ import signal
 import sys
 import os
 from typing import Optional, Dict, Any
+from datetime import datetime, timedelta
+from flask import Flask, jsonify, request, redirect
 
 from bmp_reader import BME680Reader
 from config import settings
 from logger import setup_logging
+import google_service
 
 # Initialize Logging
 setup_logging()
@@ -77,6 +80,34 @@ def api_history():
     
     # Return a list of all historical readings
     return jsonify(list(state.reader.history_buffer))
+
+@app.route('/api/calendar')
+def api_calendar():
+    events = google_service.fetch_events()
+    return jsonify(events)
+
+@app.route('/api/auth/google')
+def google_auth():
+    # Construct the host URL dynamically or from settings
+    host_url = request.url_root.rstrip('/')
+    auth_url, error = google_service.get_auth_url(host_url)
+    if error:
+        return jsonify({"error": error}), 500
+    return redirect(auth_url)
+
+@app.route('/api/auth/callback')
+def google_auth_callback():
+    code = request.args.get('code')
+    if not code:
+        return "Error: No code provided", 400
+        
+    host_url = request.url_root.rstrip('/')
+    success, message = google_service.handle_auth_callback(code, host_url)
+    
+    if success:
+        return redirect('/') # Redirect back to dashboard
+    else:
+        return f"Authentication Failed: {message}", 500
 
 def start_app():
     # Register signal handlers

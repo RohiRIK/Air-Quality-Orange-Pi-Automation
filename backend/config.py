@@ -10,6 +10,10 @@ class Settings(BaseSettings):
     # N8N Configuration
     N8N_WEBHOOK_URL_TEST: Optional[str] = None
     N8N_WEBHOOK_URL_PROD: Optional[str] = None
+    N8N_CALENDAR_WEBHOOK_URL: Optional[str] = None
+
+    # Google Calendar (iCal URL)
+    GOOGLE_CALENDAR_ICS_URL: Optional[str] = None
     
     # Hardware Config
     I2C_DEVICE: str = "/dev/i2c-0"
