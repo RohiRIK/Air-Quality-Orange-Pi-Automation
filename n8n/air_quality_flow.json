@@ -1,0 +1,143 @@
+{
+  "name": "Air Quality AI Analyst",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "air-quality",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ],
+      "webhookId": "air-quality-monitor"
+    },
+    {
+      "parameters": {
+        "model": "gpt-3.5-turbo",
+        "prompt": "You are a witty, helpful smart home assistant. Analyze this indoor air quality data:\n\nScore: {{ $json.body.air_quality_score }}%\nStatus: {{ $json.body.air_quality_status }}\nTemp: {{ $json.body.temperature_c }}°C\nHumidity: {{ $json.body.humidity_rh }}%\nGas Resistance: {{ $json.body.gas_ohms }} Ohms (Baseline: {{ $json.body.gas_baseline_ohms }})\n\nInstructions:\n1. If the score is high (>80), give a short, positive remark.\n2. If humidity is high (>60), suggest a fan/dehumidifier.\n3. If humidity is low (<30), suggest a humidifier.\n4. If gas resistance dropped suddenly (indicating VOCs), ask if someone is cooking.\n5. Keep the response under 20 words. No emojis. Be concise.",
+        "options": {
+          "systemMessage": "You are an environmental analyst. Your output will be displayed on a dashboard."
+        }
+      },
+      "id": "ai-analysis",
+      "name": "AI Insight Generator",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        500,
+        300
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "YOUR_OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"explanation\": \"{{ $json.text }}\"\n}",
+        "options": {}
+      },
+      "id": "webhook-response",
+      "name": "Respond to Dashboard",
+      "type": "n8n-nodes-base.webhookResponse",
+      "typeVersion": 1,
+      "position": [
+        750,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $node['Webhook'].json.body.air_quality_score }}",
+              "operation": "smaller",
+              "value2": 50
+            }
+          ]
+        }
+      },
+      "id": "check-critical",
+      "name": "Critical Quality Check",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        500,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_CHAT_ID",
+        "text": "⚠️ **Air Quality Alert**\n\nLevel has dropped to {{ $node['Webhook'].json.body.air_quality_score }}%.
+Status: {{ $node['Webhook'].json.body.air_quality_status }}
+\nCheck for smoke, cooking fumes, or poor ventilation immediately!",
+        "additionalFields": {}
+      },
+      "id": "telegram-alert",
+      "name": "Telegram Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        750,
+        500
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Insight Generator",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Critical Quality Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Insight Generator": {
+      "main": [
+        [
+          {
+            "node": "Respond to Dashboard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Critical Quality Check": {
+      "main": [
+        [
+          {
+            "node": "Telegram Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
