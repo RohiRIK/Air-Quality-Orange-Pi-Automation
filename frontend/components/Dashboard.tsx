@@ -1,17 +1,28 @@
 "use client";
 
+import { useState } from 'react';
 import useSWR from 'swr';
 import { fetcher, API_URL } from '@/lib/api';
 import { SensorData } from '@/types/sensor';
 import AirQualityGauge from './AirQualityGauge';
 import MetricCard from './MetricCard';
 import LiveClock from './LiveClock';
+import HistoryModal from './HistoryModal';
 import { Thermometer, Droplets, Gauge, Activity } from 'lucide-react';
 
 export default function Dashboard() {
-  // Poll every 2 seconds. The API returns the direct object.
+  // State for Modal
+  const [selectedMetric, setSelectedMetric] = useState<{key: keyof SensorData, label: string, color: string} | null>(null);
+
+  // Poll live data every 2 seconds
   const { data: sensor, error, isLoading } = useSWR<SensorData>(`${API_URL}/data`, fetcher, {
     refreshInterval: 2000,
+  });
+
+  // Fetch history only when needed (or pre-fetch if you want instant open)
+  // We'll pre-fetch lazily or just fetch always (it's small JSON)
+  const { data: history } = useSWR<SensorData[]>(`${API_URL}/history`, fetcher, {
+    refreshInterval: 5000, // Update history every 5s
   });
 
   if (error) return (
@@ -43,7 +54,10 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         
         {/* Left Col: Hero Gauge (Span 8) */}
-        <div className="md:col-span-8 lg:col-span-8 h-[400px]">
+        <div 
+          onClick={() => setSelectedMetric({ key: 'air_quality_score', label: 'Air Quality Score', color: 'text-emerald-400' })}
+          className="md:col-span-8 lg:col-span-8 h-[400px] cursor-pointer hover:scale-[1.01] transition-transform duration-300"
+        >
           <AirQualityGauge 
             score={sensor.air_quality_score || 0} 
             status={sensor.air_quality_status || "Initializing..."} 
@@ -58,6 +72,7 @@ export default function Dashboard() {
             unit="°C" 
             icon={Thermometer} 
             color="text-amber-400"
+            onClick={() => setSelectedMetric({ key: 'temperature_c', label: 'Temperature', color: 'text-amber-400' })}
           />
           <MetricCard 
             label="Humidity" 
@@ -65,6 +80,7 @@ export default function Dashboard() {
             unit="%" 
             icon={Droplets} 
             color="text-cyan-400"
+            onClick={() => setSelectedMetric({ key: 'humidity_rh', label: 'Humidity', color: 'text-cyan-400' })}
           />
           <MetricCard 
             label="Pressure" 
@@ -72,6 +88,7 @@ export default function Dashboard() {
             unit="hPa" 
             icon={Gauge} 
             color="text-purple-400"
+            onClick={() => setSelectedMetric({ key: 'pressure_hpa', label: 'Pressure', color: 'text-purple-400' })}
           />
         </div>
 
@@ -94,6 +111,16 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* History Modal */}
+      <HistoryModal 
+        isOpen={!!selectedMetric}
+        onClose={() => setSelectedMetric(null)}
+        metricKey={selectedMetric?.key || null}
+        metricLabel={selectedMetric?.label || ''}
+        color={selectedMetric?.color || ''}
+        data={history || []}
+      />
     </div>
   );
 }

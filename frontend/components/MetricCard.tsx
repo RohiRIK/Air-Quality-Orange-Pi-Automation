@@ -1,29 +1,34 @@
 import { LucideIcon } from 'lucide-react';
+import { clsx } from 'clsx';
 
 interface Props {
   label: string;
-  value: string | number;
+  value: number;
   unit: string;
   icon: LucideIcon;
-  trend?: 'up' | 'down' | 'flat';
-  color?: string;
+  color: string;
+  onClick?: () => void;
 }
 
-export default function MetricCard({ label, value, unit, icon: Icon, color = "text-blue-400" }: Props) {
+export default function MetricCard({ label, value, unit, icon: Icon, color, onClick }: Props) {
   return (
-    <div className="glass-card p-6 flex flex-col justify-between h-32 relative overflow-hidden group">
-      <div className="flex justify-between items-start z-10">
-        <span className="text-slate-400 text-sm font-medium">{label}</span>
-        <Icon className={`w-5 h-5 ${color} opacity-80`} />
+    <div 
+      onClick={onClick}
+      className={clsx(
+        "glass-panel p-6 flex items-center justify-between transition-all duration-300",
+        onClick && "cursor-pointer hover:scale-[1.02] hover:bg-slate-800/60 active:scale-95"
+      )}
+    >
+      <div>
+        <p className="text-slate-400 text-sm font-medium uppercase tracking-wider">{label}</p>
+        <div className="flex items-baseline gap-1 mt-1">
+          <span className="text-2xl font-light text-slate-100">{value}</span>
+          <span className="text-slate-500 text-sm">{unit}</span>
+        </div>
       </div>
-      
-      <div className="z-10 mt-auto">
-        <span className="text-3xl font-light text-slate-100">{value}</span>
-        <span className="text-slate-500 text-sm ml-1">{unit}</span>
+      <div className={clsx("p-3 rounded-xl bg-opacity-10", color.replace('text-', 'bg-'))}>
+        <Icon className={clsx("w-6 h-6", color)} />
       </div>
-
-      {/* Decorative background element */}
-      <div className={`absolute -bottom-4 -right-4 w-24 h-24 ${color} rounded-full blur-3xl opacity-5 group-hover:opacity-10 transition-opacity duration-500`} />
     </div>
   );
 }
