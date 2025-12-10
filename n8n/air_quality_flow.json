@@ -79,9 +79,8 @@
     {
       "parameters": {
         "chatId": "YOUR_CHAT_ID",
-        "text": "⚠️ **Air Quality Alert**\n\nLevel has dropped to {{ $node['Webhook'].json.body.air_quality_score }}%.
-Status: {{ $node['Webhook'].json.body.air_quality_status }}
-\nCheck for smoke, cooking fumes, or poor ventilation immediately!",
+        "text": "=⚠️ **Air Quality Alert**\n\nLevel has dropped to {{ $node['Webhook'].json.body.air_quality_score }}%.
+Status: {{ $node['Webhook'].json.body.air_quality_status }}\n\nCheck for smoke, cooking fumes, or poor ventilation immediately!",
         "additionalFields": {}
       },
       "id": "telegram-alert",
