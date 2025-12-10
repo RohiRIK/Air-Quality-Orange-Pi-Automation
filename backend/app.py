@@ -70,6 +70,14 @@ def api_data():
     data['explanation'] = state.explanation
     return jsonify(data)
 
+@app.route('/api/history')
+def api_history():
+    if not state.reader:
+        return jsonify({"error": "Sensor not initialized"}), 503
+    
+    # Return a list of all historical readings
+    return jsonify(list(state.reader.history_buffer))
+
 def start_app():
     # Register signal handlers
     signal.signal(signal.SIGINT, signal_handler)

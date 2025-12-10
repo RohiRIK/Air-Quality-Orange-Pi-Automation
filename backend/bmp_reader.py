@@ -36,6 +36,7 @@ class BME680Reader:
         self.start_time: float = time.monotonic()
         self.reading_count: int = 0
         self.latest_data: Dict[str, Any] = {}
+        self.history_buffer = deque(maxlen=1800) # Store ~1 hour of data at 2-second intervals
         self.stop_event: bool = False
 
     def _load_baseline(self):
@@ -154,6 +155,7 @@ class BME680Reader:
                 }
                 
                 self.latest_data = sensor_data
+                self.history_buffer.append(sensor_data)
 
             except Exception as e:
                 # Log error but keep loop alive (exponential backoff could be added here)
