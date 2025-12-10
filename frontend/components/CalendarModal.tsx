@@ -187,7 +187,7 @@ export default function CalendarModal({ isOpen, onClose }: CalendarModalProps) {
             </div>
             
             <div className="mt-4 pt-4 border-t text-xs text-center" style={{ borderColor: theme.colors.border, color: theme.colors.muted }}>
-                Sync via n8n enabled
+                Synced with Google Calendar
             </div>
         </div>
       </div>
