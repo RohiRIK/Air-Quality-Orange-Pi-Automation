@@ -8,21 +8,26 @@ import AirQualityGauge from './AirQualityGauge';
 import MetricCard from './MetricCard';
 import LiveClock from './LiveClock';
 import HistoryModal from './HistoryModal';
-import { Thermometer, Droplets, Gauge, Activity } from 'lucide-react';
+import SettingsModal from './SettingsModal';
+import CalendarModal from './CalendarModal';
+import { Thermometer, Droplets, Gauge, Activity, Settings, Palette } from 'lucide-react';
+import { useTheme } from '@/lib/ThemeContext';
 
 export default function Dashboard() {
-  // State for Modal
+  const { theme } = useTheme();
+  
+  // State for Modals
   const [selectedMetric, setSelectedMetric] = useState<{key: keyof SensorData, label: string, color: string} | null>(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   // Poll live data every 2 seconds
   const { data: sensor, error, isLoading } = useSWR<SensorData>(`${API_URL}/data`, fetcher, {
     refreshInterval: 2000,
   });
 
-  // Fetch history only when needed (or pre-fetch if you want instant open)
-  // We'll pre-fetch lazily or just fetch always (it's small JSON)
   const { data: history } = useSWR<SensorData[]>(`${API_URL}/history`, fetcher, {
-    refreshInterval: 5000, // Update history every 5s
+    refreshInterval: 5000,
   });
 
   if (error) return (
@@ -33,7 +38,10 @@ export default function Dashboard() {
 
   if (isLoading || !sensor) return (
     <div className="flex items-center justify-center min-h-screen">
-      <div className="w-12 h-12 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin" />
+      <div 
+        className="w-12 h-12 border-4 rounded-full animate-spin" 
+        style={{ borderColor: `${theme.colors.primary}33`, borderTopColor: theme.colors.primary }}
+      />
     </div>
   );
 
@@ -42,12 +50,31 @@ export default function Dashboard() {
       {/* Header */}
       <header className="flex justify-between items-end mb-8">
         <div>
-          <h1 className="text-2xl font-light tracking-wide text-slate-100">
-            Environment <span className="font-bold text-emerald-400">Monitor</span>
+          <h1 className="text-2xl font-light tracking-wide" style={{ color: theme.colors.text }}>
+            Environment <span className="font-bold" style={{ color: theme.colors.primary }}>Monitor</span>
           </h1>
-          <p className="text-slate-400 text-sm mt-1">System Status: <span className="text-emerald-400">Online</span> • ID: {sensor.device_id}</p>
+          <p className="text-sm mt-1" style={{ color: theme.colors.muted }}>
+            System Status: <span style={{ color: theme.colors.primary }}>Online</span> • ID: {sensor.device_id}
+          </p>
         </div>
-        <LiveClock />
+        
+        <div className="flex items-center gap-4">
+           {/* Calendar Trigger */}
+          <button 
+            onClick={() => setIsCalendarOpen(true)}
+            className="hover:scale-105 transition-transform"
+          >
+            <LiveClock />
+          </button>
+
+          {/* Settings Trigger */}
+          <button 
+            onClick={() => setIsSettingsOpen(true)}
+            className="p-3 rounded-xl glass-panel hover:brightness-125 transition-all group"
+          >
+            <Settings className="w-5 h-5 group-hover:rotate-90 transition-transform duration-500" style={{ color: theme.colors.muted }} />
+          </button>
+        </div>
       </header>
 
       {/* Main Grid */}
@@ -55,7 +82,7 @@ export default function Dashboard() {
         
         {/* Left Col: Hero Gauge (Span 8) */}
         <div 
-          onClick={() => setSelectedMetric({ key: 'air_quality_score', label: 'Air Quality Score', color: 'text-emerald-400' })}
+          onClick={() => setSelectedMetric({ key: 'air_quality_score', label: 'Air Quality Score', color: theme.colors.primary })}
           className="md:col-span-8 lg:col-span-8 h-[400px] cursor-pointer hover:scale-[1.01] transition-transform duration-300"
         >
           <AirQualityGauge 
@@ -71,40 +98,40 @@ export default function Dashboard() {
             value={sensor.temperature_c} 
             unit="°C" 
             icon={Thermometer} 
-            color="text-amber-400"
-            onClick={() => setSelectedMetric({ key: 'temperature_c', label: 'Temperature', color: 'text-amber-400' })}
+            color={theme.colors.secondary} // Use theme secondary color
+            onClick={() => setSelectedMetric({ key: 'temperature_c', label: 'Temperature', color: theme.colors.secondary })}
           />
           <MetricCard 
             label="Humidity" 
             value={sensor.humidity_rh} 
             unit="%" 
             icon={Droplets} 
-            color="text-cyan-400"
-            onClick={() => setSelectedMetric({ key: 'humidity_rh', label: 'Humidity', color: 'text-cyan-400' })}
+            color={theme.colors.primary} // Use theme primary
+            onClick={() => setSelectedMetric({ key: 'humidity_rh', label: 'Humidity', color: theme.colors.primary })}
           />
           <MetricCard 
             label="Pressure" 
             value={sensor.pressure_hpa} 
             unit="hPa" 
             icon={Gauge} 
-            color="text-purple-400"
-            onClick={() => setSelectedMetric({ key: 'pressure_hpa', label: 'Pressure', color: 'text-purple-400' })}
+            color="#c084fc" // Keep specific color for pressure or use theme accent
+            onClick={() => setSelectedMetric({ key: 'pressure_hpa', label: 'Pressure', color: '#c084fc' })}
           />
         </div>
 
         {/* Bottom Row: Insights / Explanation (Span 12) */}
         <div className="md:col-span-12">
           <div className="glass-panel p-6 flex flex-col md:flex-row items-start md:items-center gap-6">
-            <div className="bg-slate-800/50 p-3 rounded-full">
-              <Activity className="w-6 h-6 text-emerald-400" />
+            <div className="p-3 rounded-full" style={{ backgroundColor: `${theme.colors.bg}80` }}>
+              <Activity className="w-6 h-6" style={{ color: theme.colors.primary }} />
             </div>
             <div className="flex-1">
-              <h3 className="text-slate-300 font-medium mb-1">System Analysis</h3>
-              <p className="text-slate-400 font-light leading-relaxed">
+              <h3 className="font-medium mb-1" style={{ color: theme.colors.text }}>System Analysis</h3>
+              <p className="font-light leading-relaxed" style={{ color: theme.colors.muted }}>
                 {sensor.explanation || "Analyzing environmental patterns..."}
               </p>
             </div>
-            <div className="hidden md:block text-right text-xs text-slate-500">
+            <div className="hidden md:block text-right text-xs" style={{ color: theme.colors.muted }}>
               <p>Baseline: {sensor.gas_baseline_ohms} Ω</p>
               <p>Uptime: {Math.round(sensor.uptime_seconds / 60)}m</p>
             </div>
@@ -112,7 +139,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* History Modal */}
+      {/* Modals */}
       <HistoryModal 
         isOpen={!!selectedMetric}
         onClose={() => setSelectedMetric(null)}
@@ -120,6 +147,16 @@ export default function Dashboard() {
         metricLabel={selectedMetric?.label || ''}
         color={selectedMetric?.color || ''}
         data={history || []}
+      />
+
+      <SettingsModal 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+      />
+
+      <CalendarModal 
+        isOpen={isCalendarOpen} 
+        onClose={() => setIsCalendarOpen(false)} 
       />
     </div>
   );
