@@ -18,6 +18,8 @@ services:
       - READ_INTERVAL=2.0
       - I2C_DEVICE=/dev/i2c-0
       - DEVICE_ID=unknown-device
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
 

@@ -11,7 +11,21 @@ logger = logging.getLogger(__name__)
 
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 TOKEN_FILE = 'token.json'
-CREDENTIALS_FILE = 'credentials.json' # User must provide this
+
+def get_client_config():
+    """Constructs the Google Client Config from environment variables."""
+    if not settings.GOOGLE_CLIENT_ID or not settings.GOOGLE_CLIENT_SECRET:
+        return None
+        
+    return {
+        "web": {
+            "client_id": settings.GOOGLE_CLIENT_ID,
+            "client_secret": settings.GOOGLE_CLIENT_SECRET,
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+        }
+    }
 
 def get_credentials():
     creds = None
@@ -37,16 +51,16 @@ def get_credentials():
 
 def get_auth_url(host_url):
     """Generates the Google Login URL."""
-    if not os.path.exists(CREDENTIALS_FILE):
-        return None, "credentials.json not found"
+    client_config = get_client_config()
+    if not client_config:
+        return None, "GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET not set in environment."
 
     try:
         # Determine redirect URI dynamically based on request host
-        # If running in Docker/Reverse Proxy, this might need adjustment in settings
         redirect_uri = f"{host_url}/api/auth/callback"
         
-        flow = Flow.from_client_secrets_file(
-            CREDENTIALS_FILE,
+        flow = Flow.from_client_config(
+            client_config,
             scopes=SCOPES,
             redirect_uri=redirect_uri
         )
@@ -59,18 +73,22 @@ def get_auth_url(host_url):
 
 def handle_auth_callback(code, host_url):
     """Exchanges code for token."""
+    client_config = get_client_config()
+    if not client_config:
+        return False, "Configuration missing"
+
     try:
         redirect_uri = f"{host_url}/api/auth/callback"
         
-        flow = Flow.from_client_secrets_file(
-            CREDENTIALS_FILE,
+        flow = Flow.from_client_config(
+            client_config,
             scopes=SCOPES,
             redirect_uri=redirect_uri
         )
         flow.fetch_token(code=code)
         creds = flow.credentials
         
-        # Save credentials
+        # Save credentials (token.json contains the ACCESS token, not the client secret)
         with open(TOKEN_FILE, 'w') as token:
             token.write(creds.to_json())
             
