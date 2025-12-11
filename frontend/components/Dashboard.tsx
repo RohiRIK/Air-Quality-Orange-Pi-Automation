@@ -10,7 +10,8 @@ import LiveClock from './LiveClock';
 import HistoryModal from './HistoryModal';
 import SettingsModal from './SettingsModal';
 import CalendarModal from './CalendarModal';
-import { Thermometer, Droplets, Gauge, Activity, Settings, Palette } from 'lucide-react';
+import RawDataModal from './RawDataModal';
+import { Thermometer, Droplets, Gauge, Activity, Settings, Palette, Database } from 'lucide-react';
 import { useTheme } from '@/lib/ThemeContext';
 
 export default function Dashboard() {
@@ -20,6 +21,7 @@ export default function Dashboard() {
   const [selectedMetric, setSelectedMetric] = useState<{key: keyof SensorData, label: string, color: string} | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [isRawDataOpen, setIsRawDataOpen] = useState(false);
 
   // Poll live data every 2 seconds
   const { data: sensor, error, isLoading } = useSWR<SensorData>(`${API_URL}/data`, fetcher, {
@@ -58,19 +60,29 @@ export default function Dashboard() {
           </p>
         </div>
         
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
            {/* Calendar Trigger */}
           <button 
             onClick={() => setIsCalendarOpen(true)}
-            className="hover:scale-105 transition-transform"
+            className="hover:scale-105 transition-transform mr-2"
           >
             <LiveClock />
+          </button>
+
+          {/* Raw Data Trigger */}
+          <button 
+            onClick={() => setIsRawDataOpen(true)}
+            className="p-3 rounded-xl glass-panel hover:brightness-125 transition-all group"
+            title="View Raw Data"
+          >
+            <Database className="w-5 h-5 group-hover:scale-110 transition-transform" style={{ color: theme.colors.muted }} />
           </button>
 
           {/* Settings Trigger */}
           <button 
             onClick={() => setIsSettingsOpen(true)}
             className="p-3 rounded-xl glass-panel hover:brightness-125 transition-all group"
+            title="Settings"
           >
             <Settings className="w-5 h-5 group-hover:rotate-90 transition-transform duration-500" style={{ color: theme.colors.muted }} />
           </button>
@@ -157,6 +169,12 @@ export default function Dashboard() {
       <CalendarModal 
         isOpen={isCalendarOpen} 
         onClose={() => setIsCalendarOpen(false)} 
+      />
+
+      <RawDataModal
+        isOpen={isRawDataOpen}
+        onClose={() => setIsRawDataOpen(false)}
+        data={sensor}
       />
     </div>
   );

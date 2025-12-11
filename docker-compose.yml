@@ -17,7 +17,7 @@ services:
       - BLINKA_FORCEBOARD=ORANGE_PI_3_LTS
       - READ_INTERVAL=2.0
       - I2C_DEVICE=/dev/i2c-0
-      - DEVICE_ID=unknown-device
+      - DEVICE_ID=${HOSTNAME:-orange-pi}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
     labels:

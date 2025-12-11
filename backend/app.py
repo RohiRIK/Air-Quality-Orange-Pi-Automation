@@ -49,8 +49,9 @@ def n8n_sender_thread():
                 state.explanation = f"Could not connect to n8n: {e}"
                 logger.error(f"n8n connection failed: {e}")
         
-        # Sleep for a bit, but check running status frequently
-        for _ in range(50):  # 5 seconds total (50 * 0.1)
+        # Sleep for 60 seconds (reduce AI/Webhook load)
+        # Check running status frequently (every 0.1s)
+        for _ in range(600):  # 60 seconds total (600 * 0.1)
             if not state.running:
                 break
             time.sleep(0.1)
