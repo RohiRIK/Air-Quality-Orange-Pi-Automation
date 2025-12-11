@@ -11,6 +11,7 @@ import HistoryModal from './HistoryModal';
 import SettingsModal from './SettingsModal';
 import CalendarModal from './CalendarModal';
 import RawDataModal from './RawDataModal';
+import AqiDetailsModal from './AqiDetailsModal';
 import { Thermometer, Droplets, Gauge, Activity, Settings, Palette, Database } from 'lucide-react';
 import { useTheme } from '@/lib/ThemeContext';
 
@@ -19,6 +20,7 @@ export default function Dashboard() {
   
   // State for Modals
   const [selectedMetric, setSelectedMetric] = useState<{key: keyof SensorData, label: string, color: string} | null>(null);
+  const [isAqiDetailsOpen, setIsAqiDetailsOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isRawDataOpen, setIsRawDataOpen] = useState(false);
@@ -94,7 +96,7 @@ export default function Dashboard() {
         
         {/* Left Col: Hero Gauge (Span 8) */}
         <div 
-          onClick={() => setSelectedMetric({ key: 'air_quality_score', label: 'Air Quality Score', color: theme.colors.primary })}
+          onClick={() => setIsAqiDetailsOpen(true)}
           className="md:col-span-8 lg:col-span-8 h-[400px] cursor-pointer hover:scale-[1.01] transition-transform duration-300"
         >
           <AirQualityGauge 
@@ -175,6 +177,12 @@ export default function Dashboard() {
         isOpen={isRawDataOpen}
         onClose={() => setIsRawDataOpen(false)}
         data={sensor}
+      />
+
+      <AqiDetailsModal
+        isOpen={isAqiDetailsOpen}
+        onClose={() => setIsAqiDetailsOpen(false)}
+        currentData={sensor}
       />
     </div>
   );
