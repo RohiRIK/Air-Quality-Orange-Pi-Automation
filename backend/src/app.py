@@ -12,51 +12,64 @@ from src.api.routes import api_bp
 
 logger = logging.getLogger(__name__)
 
+
 def n8n_sender_thread():
     """Background thread to send data to n8n."""
     logger.info("Starting n8n sender thread")
     while state.running:
         webhook_url = settings.n8n_webhook_url
-        
+
         if state.reader and state.reader.latest_data and webhook_url:
             try:
-                response = requests.post(webhook_url, json=state.reader.latest_data, timeout=5)
+                response = requests.post(
+                    webhook_url, json=state.reader.latest_data, timeout=5
+                )
                 if response.status_code == 200:
-                    state.explanation = response.json().get("explanation", "No explanation field in n8n response.")
+                    state.explanation = response.json().get(
+                        "explanation", "No explanation field in n8n response."
+                    )
                 else:
                     state.explanation = f"Error from n8n: {response.status_code}"
-                    logger.warning(f"n8n error: {response.status_code}", extra={"status": response.status_code})
+                    logger.warning(
+                        f"n8n error: {response.status_code}",
+                        extra={"status": response.status_code},
+                    )
             except requests.exceptions.RequestException as e:
                 state.explanation = f"Could not connect to n8n: {e}"
                 logger.error(f"n8n connection failed: {e}")
-        
+
         # Sleep loop with check
-        for _ in range(600):  
+        for _ in range(600):
             if not state.running:
                 break
             time.sleep(0.1)
     logger.info("n8n sender thread stopped")
 
+
 def create_app():
     setup_logging()
     app = Flask(__name__)
-    
-    app.register_blueprint(api_bp, url_prefix='/api')
-    
+
+    app.register_blueprint(api_bp, url_prefix="/api")
+
     # Initialize Sensor & Threads
-    # Note: In Gunicorn, this runs in the worker process. 
+    # Note: In Gunicorn, this runs in the worker process.
     # Ensure Gunicorn is run with --workers 1 to prevent multiple processes accessing I2C.
     if not state.reader:
-         try:
-             logger.info("Initializing BME680 Reader...")
-             state.reader = BME680Reader()
-             
-             t_sensor = threading.Thread(target=state.reader.run, name="SensorThread", daemon=True)
-             t_sensor.start()
-             
-             t_n8n = threading.Thread(target=n8n_sender_thread, name="N8NThread", daemon=True)
-             t_n8n.start()
-         except Exception as e:
-             logger.error(f"Failed to start background threads: {e}")
+        try:
+            logger.info("Initializing BME680 Reader...")
+            state.reader = BME680Reader()
+
+            t_sensor = threading.Thread(
+                target=state.reader.run, name="SensorThread", daemon=True
+            )
+            t_sensor.start()
+
+            t_n8n = threading.Thread(
+                target=n8n_sender_thread, name="N8NThread", daemon=True
+            )
+            t_n8n.start()
+        except Exception as e:
+            logger.error(f"Failed to start background threads: {e}")
 
     return app
