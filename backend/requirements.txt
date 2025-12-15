@@ -7,6 +7,7 @@ pydantic-settings
 pytest
 google-api-python-client
 google-auth-httplib2
-google-auth-oauthlibgunicorn
+google-auth-oauthlib
+gunicorn
 flake8
 black
