@@ -1,3 +1,4 @@
+import traceback
 import board
 import busio
 import adafruit_bme680
@@ -23,16 +24,33 @@ class BME680Reader:
         self.device_id = device_id or settings.DEVICE_ID
         self.read_interval = read_interval or settings.READ_INTERVAL
 
+        # Add a delay to allow I2C to initialize
+        time.sleep(1)
+
         # Initialize I2C bus
         try:
             self.i2c = busio.I2C(board.SCL, board.SDA)
+            # Try default address first
             self.bme680 = adafruit_bme680.Adafruit_BME680_I2C(self.i2c)
-            self.bme680.sea_level_pressure = 1013.25
-        except Exception as e:
-            logger.error(
-                f"Failed to initialize BME680: {e}", extra={"device_id": self.device_id}
+        except (ValueError, RuntimeError) as e:
+            logger.warning(
+                f"Failed to initialize BME680 at default address: {e}. Trying 0x76.",
+                extra={"traceback": traceback.format_exc()},
             )
-            self.bme680 = None
+            try:
+                # Try alternative address
+                self.bme680 = adafruit_bme680.Adafruit_BME680_I2C(
+                    self.i2c, address=0x76
+                )
+            except (ValueError, RuntimeError) as e2:
+                logger.error(
+                    f"Failed to initialize BME680 at both addresses: {e2}",
+                    extra={"device_id": self.device_id, "traceback": traceback.format_exc()},
+                )
+                self.bme680 = None
+
+        if self.bme680:
+            self.bme680.sea_level_pressure = 1013.25
 
         # Air Quality Baseline Persistence
         self.gas_baseline = 50000.0  # Default fallback (Ohms)

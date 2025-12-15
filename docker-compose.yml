@@ -34,6 +34,7 @@ services:
       - "/dev/i2c-0:/dev/i2c-0"
     environment:
       - BLINKA_FORCEBOARD=ORANGE_PI_3_LTS
+      - BLINKA_I2C_DEVICE=/dev/i2c-0
       - READ_INTERVAL=2.0
       - I2C_DEVICE=/dev/i2c-0
       - DEVICE_ID=${HOSTNAME:-orange-pi}
