@@ -85,11 +85,14 @@ export default function Dashboard() {
               style={{ color: theme.colors.text }}
             >
               <option value="average">Whole House (Average)</option>
-              {sensors?.map(s => (
-                <option key={s.device_id} value={s.device_id}>
-                  {s.name || s.device_id}
-                </option>
-              ))}
+              {sensors?.map(s => {
+                 const isOnline = (new Date().getTime() - new Date(s.last_seen).getTime()) < 15 * 60 * 1000;
+                 return (
+                    <option key={s.device_id} value={s.device_id}>
+                      {s.name || s.device_id} {!isOnline && "(Offline)"}
+                    </option>
+                 );
+              })}
             </select>
             <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/10 text-green-500">
               Online

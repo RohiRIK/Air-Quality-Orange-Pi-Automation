@@ -1,17 +1,21 @@
 "use client";
 
-import { X, Check } from 'lucide-react';
+import { X, Check, Palette, Server } from 'lucide-react';
 import { useTheme } from '@/lib/ThemeContext';
 import { themes } from '@/lib/themes';
 import { useEffect, useState } from 'react';
+import SensorSettings from './SensorSettings';
 
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+type Tab = 'appearance' | 'sensors';
+
 export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const { theme, setTheme } = useTheme();
+  const [activeTab, setActiveTab] = useState<Tab>('appearance');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -36,10 +40,10 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         <div className="flex justify-between items-center mb-6 border-b pb-4" style={{ borderColor: theme.colors.border }}>
           <div>
             <h2 className="text-xl font-light" style={{ color: theme.colors.text }}>
-              Appearance Settings
+              Settings
             </h2>
             <p className="text-sm mt-1" style={{ color: theme.colors.muted }}>
-              Customize your dashboard theme
+              Configure your dashboard
             </p>
           </div>
           <button 
@@ -51,41 +55,67 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           </button>
         </div>
 
-        {/* Theme Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 overflow-y-auto p-1 custom-scrollbar">
-          {themes.map((t) => (
+        {/* Tabs */}
+        <div className="flex gap-2 mb-6 p-1 rounded-lg bg-black/20 w-fit">
             <button
-              key={t.id}
-              onClick={() => setTheme(t.id)}
-              className={`
-                group relative flex flex-col items-center gap-3 p-4 rounded-xl border transition-all duration-300
-                ${theme.id === t.id ? 'ring-2 ring-offset-2 ring-offset-black/50' : 'hover:scale-[1.02]'}
-              `}
-              style={{
-                backgroundColor: t.colors.bg,
-                borderColor: theme.id === t.id ? t.colors.primary : t.colors.border,
-
-              }}
+                onClick={() => setActiveTab('appearance')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm transition-all ${activeTab === 'appearance' ? 'bg-white/10 shadow-sm' : 'hover:bg-white/5'}`}
+                style={{ color: activeTab === 'appearance' ? theme.colors.primary : theme.colors.muted }}
             >
-              {/* Preview Circles */}
-              <div className="flex gap-2 mb-2">
-                <div className="w-6 h-6 rounded-full shadow-lg" style={{ backgroundColor: t.colors.primary }} />
-                <div className="w-6 h-6 rounded-full shadow-lg" style={{ backgroundColor: t.colors.secondary }} />
-                <div className="w-6 h-6 rounded-full shadow-lg border border-white/10" style={{ backgroundColor: t.colors.bg }} />
-              </div>
-              
-              <span className="text-sm font-medium" style={{ color: t.colors.text }}>
-                {t.name}
-              </span>
-
-              {/* Active Indicator */}
-              {theme.id === t.id && (
-                <div className="absolute top-3 right-3 p-1 rounded-full" style={{ backgroundColor: t.colors.primary, color: t.colors.bg }}>
-                  <Check className="w-3 h-3" />
-                </div>
-              )}
+                <Palette className="w-4 h-4" />
+                Appearance
             </button>
-          ))}
+            <button
+                onClick={() => setActiveTab('sensors')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm transition-all ${activeTab === 'sensors' ? 'bg-white/10 shadow-sm' : 'hover:bg-white/5'}`}
+                style={{ color: activeTab === 'sensors' ? theme.colors.primary : theme.colors.muted }}
+            >
+                <Server className="w-4 h-4" />
+                Sensors
+            </button>
+        </div>
+
+        {/* Content */}
+        <div className="overflow-y-auto p-1 custom-scrollbar min-h-[300px]">
+            {activeTab === 'appearance' ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {themes.map((t) => (
+                    <button
+                    key={t.id}
+                    onClick={() => setTheme(t.id)}
+                    className={`
+                        group relative flex flex-col items-center gap-3 p-4 rounded-xl border transition-all duration-300
+                        ${theme.id === t.id ? 'ring-2 ring-offset-2 ring-offset-black/50' : 'hover:scale-[1.02]'}
+                    `}
+                    style={{
+                        backgroundColor: t.colors.bg,
+                        borderColor: theme.id === t.id ? t.colors.primary : t.colors.border,
+
+                    }}
+                    >
+                    {/* Preview Circles */}
+                    <div className="flex gap-2 mb-2">
+                        <div className="w-6 h-6 rounded-full shadow-lg" style={{ backgroundColor: t.colors.primary }} />
+                        <div className="w-6 h-6 rounded-full shadow-lg" style={{ backgroundColor: t.colors.secondary }} />
+                        <div className="w-6 h-6 rounded-full shadow-lg border border-white/10" style={{ backgroundColor: t.colors.bg }} />
+                    </div>
+                    
+                    <span className="text-sm font-medium" style={{ color: t.colors.text }}>
+                        {t.name}
+                    </span>
+
+                    {/* Active Indicator */}
+                    {theme.id === t.id && (
+                        <div className="absolute top-3 right-3 p-1 rounded-full" style={{ backgroundColor: t.colors.primary, color: t.colors.bg }}>
+                        <Check className="w-3 h-3" />
+                        </div>
+                    )}
+                    </button>
+                ))}
+                </div>
+            ) : (
+                <SensorSettings />
+            )}
         </div>
 
         {/* Footer */}
