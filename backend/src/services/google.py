@@ -5,7 +5,7 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
-from config import settings
+from src.core.config import settings
 
 logger = logging.getLogger(__name__)
 

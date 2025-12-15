@@ -1,8 +1,8 @@
-# Use Python 3.9 Slim
+# Use Python 3.11 Slim
 FROM python:3.11-slim
 
 # Set working directory
-WORKDIR /app/backend
+WORKDIR /app
 
 # Install system dependencies (required for some Python packages)
 RUN apt-get update && apt-get install -y \
@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first (for caching)
+# Assuming build context is project root
 COPY backend/requirements.txt .
 
 # Install dependencies
@@ -22,5 +23,7 @@ COPY backend/ .
 # Expose port
 EXPOSE 5000
 
-# Run the application
-CMD ["python", "app.py"]
+# Run the application with Gunicorn
+# -w 1: Single worker to ensure exclusive I2C access
+# --threads 4: Handle concurrent requests
+CMD ["gunicorn", "--workers=1", "--threads=4", "--bind=0.0.0.0:5000", "wsgi:app"]

@@ -1,16 +1,35 @@
 version: '3.8'
+
 services:
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      bmp-sensor:
+        condition: service_healthy
+      frontend:
+        condition: service_started
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/api/data"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   bmp-sensor:
     build:
       context: .
       dockerfile: backend/Dockerfile
-      network: host
-    image: rohirikman/air-quality-sensor # Using a tagged image is best practice for Watchtower
+    image: rohirikman/air-quality-sensor
     container_name: bmp-sensor-container
     restart: unless-stopped
     privileged: true
-    network_mode: host
-
     devices:
       - "/dev/i2c-0:/dev/i2c-0"
     environment:
@@ -22,23 +41,31 @@ services:
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/data"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      network: host
     image: rohirikman/air-quality-frontend
     container_name: frontend-container
     restart: unless-stopped
-    network_mode: host
-
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:5000/api
+      # Now proxied via Nginx on the same origin
+      - NEXT_PUBLIC_API_URL=/api
     depends_on:
       - bmp-sensor
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
+    networks:
+      - app-network
 
   watchtower:
     image: containrrr/watchtower
@@ -46,6 +73,9 @@ services:
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    # This schedule will check for new images every day at 4 AM.
-    # For testing, you can use a short interval like --interval 300 (5 minutes)
+    # Check every day at 4 AM
     command: --schedule "0 0 4 * * *" --cleanup
+
+networks:
+  app-network:
+    driver: bridge

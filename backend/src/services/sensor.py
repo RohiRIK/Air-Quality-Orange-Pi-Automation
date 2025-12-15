@@ -9,7 +9,7 @@ from collections import deque
 from datetime import datetime, timezone
 from typing import Dict, Optional, Any
 
-from config import settings
+from src.core.config import settings
 
 logger = logging.getLogger(__name__)
 
