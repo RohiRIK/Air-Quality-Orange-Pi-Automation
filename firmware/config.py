@@ -8,6 +8,7 @@ WIFI_PASS = "YOUR_WIFI_PASSWORD"
 HUB_IP = "192.168.1.XXX" # IP of your Orange Pi
 HUB_PORT = 80
 HUB_URL = f"http://{HUB_IP}:{HUB_PORT}/api/ingest"
+API_KEY = "dev-secret-key" # Must match backend API_SECRET
 
 # Device Settings
 DEVICE_ID = "esp32_c3_01" # Unique ID for this node

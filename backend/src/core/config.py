@@ -8,6 +8,9 @@ class Settings(BaseSettings):
     DEVICE_ID: str = os.getenv("HOSTNAME", "unknown-device")
     READ_INTERVAL: float = 2.0
 
+    # API Security
+    API_SECRET: str = "dev-secret-key"
+
     # N8N Configuration
     N8N_WEBHOOK_URL_TEST: Optional[str] = None
     N8N_WEBHOOK_URL_PROD: Optional[str] = None
@@ -30,6 +33,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "ignore"
 
 
 settings = Settings()

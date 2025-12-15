@@ -3,7 +3,7 @@ import time
 import urequests
 import ujson
 from machine import I2C, Pin
-from config import HUB_URL, DEVICE_ID, READ_INTERVAL
+from config import HUB_URL, DEVICE_ID, READ_INTERVAL, API_KEY
 import bme680 # Requires bme680.py driver on the device
 
 # ESP32-C3 SuperMini I2C Pins (Default)
@@ -44,7 +44,10 @@ def get_reading():
 def send_data(data):
     try:
         print("Sending data:", data)
-        headers = {'Content-Type': 'application/json'}
+        headers = {
+            'Content-Type': 'application/json',
+            'X-API-Key': API_KEY
+        }
         response = urequests.post(HUB_URL, data=ujson.dumps(data), headers=headers)
         print("Response:", response.status_code)
         response.close()

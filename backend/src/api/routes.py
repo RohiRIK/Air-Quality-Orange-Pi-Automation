@@ -1,7 +1,6 @@
-from flask import Blueprint, jsonify, request, redirect
-from typing import Dict
 from src.state import state
 from src.core.database import db
+from src.services.n8n import send_to_n8n
 import src.services.google as google_service
 
 api_bp = Blueprint("api", __name__)
@@ -13,6 +12,11 @@ api_bp = Blueprint("api", __name__)
 def ingest_data():
     """Receive data from remote sensor nodes."""
     try:
+        # Check Authentication
+        api_key = request.headers.get("X-API-Key")
+        if api_key != settings.API_SECRET:
+            return jsonify({"error": "Unauthorized"}), 401
+
         data = request.json
         if not data or "device_id" not in data:
             return jsonify({"error": "Missing device_id"}), 400
@@ -22,6 +26,11 @@ def ingest_data():
         
         # Save reading
         db.add_reading(data)
+        
+        # Forward to n8n (Optional: could run in background task)
+        # We update the global explanation so the dashboard shows the latest event
+        explanation = send_to_n8n(data)
+        state.explanation = f"[{data['device_id']}] {explanation}"
         
         return jsonify({"status": "success"}), 201
     except Exception as e:

@@ -5,6 +5,7 @@ import json
 
 # Configuration
 API_URL = "http://localhost:80/api/ingest"  # Nginx port 80
+API_KEY = "dev-secret-key"
 # If running locally without Nginx, use http://localhost:5000/api/ingest
 
 # Mock Devices
@@ -56,7 +57,8 @@ def main():
         for device in DEVICES:
             payload = generate_reading(device)
             try:
-                response = requests.post(API_URL, json=payload, timeout=2)
+                headers = {"X-API-Key": API_KEY}
+                response = requests.post(API_URL, json=payload, headers=headers, timeout=2)
                 if response.status_code == 201:
                     print(f"Sent [{device['name']}]: Temp={payload['temperature_c']}C Score={payload['air_quality_score']}")
                 else:
