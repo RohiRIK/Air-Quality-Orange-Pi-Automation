@@ -10,4 +10,4 @@ google-auth-httplib2
 google-auth-oauthlib
 gunicorn
 flake8
-black
+black==25.12.0
