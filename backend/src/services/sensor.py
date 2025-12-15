@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 from typing import Dict, Optional, Any
 
 from src.core.config import settings
+from src.core.database import db
 
 logger = logging.getLogger(__name__)
 
@@ -175,6 +176,10 @@ class BME680Reader:
 
                 self.latest_data = sensor_data
                 self.history_buffer.append(sensor_data)
+                
+                # Persist to Database
+                db.upsert_sensor(self.device_id)
+                db.add_reading(sensor_data)
 
             except Exception as e:
                 # Log error but keep loop alive (exponential backoff could be added here)

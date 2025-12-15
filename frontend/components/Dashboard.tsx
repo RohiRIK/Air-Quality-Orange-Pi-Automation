@@ -12,12 +12,21 @@ import SettingsModal from './SettingsModal';
 import CalendarModal from './CalendarModal';
 import RawDataModal from './RawDataModal';
 import AqiDetailsModal from './AqiDetailsModal';
-import { Thermometer, Droplets, Gauge, Activity, Settings, Palette, Database } from 'lucide-react';
+import { Thermometer, Droplets, Gauge, Activity, Settings, Database, Server } from 'lucide-react';
 import { useTheme } from '@/lib/ThemeContext';
+
+interface SensorInfo {
+  device_id: string;
+  name: string | null;
+  last_seen: string;
+}
 
 export default function Dashboard() {
   const { theme } = useTheme();
   
+  // State for Context (Selected Sensor)
+  const [selectedSensorId, setSelectedSensorId] = useState<string>('average');
+
   // State for Modals
   const [selectedMetric, setSelectedMetric] = useState<{key: keyof SensorData, label: string, color: string} | null>(null);
   const [isAqiDetailsOpen, setIsAqiDetailsOpen] = useState(false);
@@ -25,10 +34,18 @@ export default function Dashboard() {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isRawDataOpen, setIsRawDataOpen] = useState(false);
 
-  // Poll live data every 2 seconds
-  const { data: sensor, error, isLoading } = useSWR<SensorData>(`${API_URL}/data`, fetcher, {
-    refreshInterval: 2000,
+  // 1. Fetch List of Sensors
+  const { data: sensors } = useSWR<SensorInfo[]>(`${API_URL}/sensors`, fetcher, {
+    refreshInterval: 10000,
   });
+
+  // 2. Poll live data for SELECTED sensor
+  // We explicitly pass ?device_id=... unless it's null (which shouldn't happen with default 'average')
+  const { data: sensor, error, isLoading } = useSWR<SensorData>(
+    `${API_URL}/data?device_id=${selectedSensorId}`, 
+    fetcher, 
+    { refreshInterval: 2000 }
+  );
 
   const { data: history } = useSWR<SensorData[]>(`${API_URL}/history`, fetcher, {
     refreshInterval: 5000,
@@ -52,14 +69,32 @@ export default function Dashboard() {
   return (
     <div className="max-w-7xl mx-auto p-6 lg:p-10 space-y-6">
       {/* Header */}
-      <header className="flex justify-between items-end mb-8">
+      <header className="flex flex-col md:flex-row justify-between items-end gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-light tracking-wide" style={{ color: theme.colors.text }}>
             Environment <span className="font-bold" style={{ color: theme.colors.primary }}>Monitor</span>
           </h1>
-          <p className="text-sm mt-1" style={{ color: theme.colors.muted }}>
-            System Status: <span style={{ color: theme.colors.primary }}>Online</span> • ID: {sensor.device_id}
-          </p>
+          
+          {/* Sensor Selector / System Status */}
+          <div className="flex items-center gap-2 mt-2">
+            <Server className="w-4 h-4" style={{ color: theme.colors.muted }} />
+            <select 
+              value={selectedSensorId}
+              onChange={(e) => setSelectedSensorId(e.target.value)}
+              className="bg-transparent text-sm font-medium border-none outline-none cursor-pointer hover:opacity-80 transition-opacity"
+              style={{ color: theme.colors.text }}
+            >
+              <option value="average">Whole House (Average)</option>
+              {sensors?.map(s => (
+                <option key={s.device_id} value={s.device_id}>
+                  {s.name || s.device_id}
+                </option>
+              ))}
+            </select>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/10 text-green-500">
+              Online
+            </span>
+          </div>
         </div>
         
         <div className="flex items-center gap-3">
