@@ -1,11 +1,25 @@
 version: 2
 updates:
+  # Python dependencies (backend)
   - package-ecosystem: "pip"
     directory: "/backend"
     schedule:
       interval: "weekly"
-      
+
+  # Node.js dependencies (frontend)
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+
+  # Dockerfile base images (backend)
   - package-ecosystem: "docker"
-    directory: "/"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+
+  # Dockerfile base images (frontend)
+  - package-ecosystem: "docker"
+    directory: "/frontend"
     schedule:
       interval: "weekly"
